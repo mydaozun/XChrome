@@ -29,7 +29,7 @@ jobs:
       run: dotnet test --configuration Release || echo "No tests found"
 
     - name: Build and publish for Windows 10+
-      run: dotnet publish --configuration Release --output publish --runtime win-x64 --self-contained true
+      run: dotnet publish --configuration Release --output publish --runtime win-x64 --no-self-contained
 
     - name: List published files
       run: |
