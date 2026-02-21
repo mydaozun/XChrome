@@ -147,12 +147,6 @@ namespace XChrome
 #else
             IsDebug=false;
             //登陆码
-            Login login=new Login();
-            login.Owner = this;
-            login.ShowDialog();
-            if (!login.isLoginSuccess) {
-                return false;
-            }
 #endif
 
             if (!await cs.Test.TestAndGoAsync()) {
