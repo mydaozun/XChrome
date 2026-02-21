@@ -63,8 +63,16 @@ jobs:
       run: |
         $version = "${{ steps.get-version.outputs.version }}"
         $zipName = "XChrome-Win10+-v$version.zip"
-        Compress-Archive -Path publish\* -DestinationPath $zipName
-        echo "zipName=$zipName" >> $env:GITHUB_ENV
+        # 确保publish目录存在且有文件
+        if (Test-Path "publish") {
+          # 直接压缩publish目录中的所有文件，不包含目录本身
+          Compress-Archive -Path publish\* -DestinationPath $zipName -Force
+          echo "Created zip package: $zipName"
+          echo "zipName=$zipName" >> $env:GITHUB_ENV
+        } else {
+          Write-Error "Publish directory not found"
+          exit 1
+        }
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
