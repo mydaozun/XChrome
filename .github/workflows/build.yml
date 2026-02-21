@@ -25,10 +25,20 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
 
-    - name: Publish
-      run: dotnet publish --configuration Release --no-build --output publish
+    - name: Publish for Windows 10+
+      run: dotnet publish --configuration Release --no-build --output publish --runtime win10-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true
+
+    - name: Create zip package
+      run: |
+        Compress-Archive -Path publish\* -DestinationPath XChrome-Win10+.zip
 
     - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: XChrome-Win10+
+        path: XChrome-Win10+.zip
+
+    - name: Upload raw publish directory
       uses: actions/upload-artifact@v4
       with:
         name: XChrome-Build
