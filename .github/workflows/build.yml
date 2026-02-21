@@ -26,7 +26,7 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     - name: Publish for Windows 10+
-      run: dotnet publish --configuration Release --no-build --output publish --runtime win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true
+      run: dotnet publish --configuration Release --no-build --output publish --runtime win-x64 --self-contained true
 
     - name: Create zip package
       run: |
