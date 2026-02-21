@@ -59,26 +59,31 @@ jobs:
           echo "version=1.0.0" >> $env:GITHUB_OUTPUT
         }
 
-    - name: Create zip package
+    - name: Create release package
       run: |
         $version = "${{ steps.get-version.outputs.version }}"
-        $zipName = "XChrome-Win10+-v$version.zip"
-        # 确保publish目录存在且有文件
-        if (Test-Path "publish") {
-          # 直接压缩publish目录中的所有文件，不包含目录本身
-          Compress-Archive -Path publish\* -DestinationPath $zipName -Force
-          echo "Created zip package: $zipName"
-          echo "zipName=$zipName" >> $env:GITHUB_ENV
+        $outputDir = "XChrome-Win10+-v$version"
+        # 创建输出目录
+        New-Item -ItemType Directory -Force -Path $outputDir
+        # 复制所有文件到输出目录
+        Copy-Item -Path publish\* -Destination $outputDir -Recurse -Force
+        # 压缩输出目录
+        $zipName = "$outputDir.zip"
+        Compress-Archive -Path $outputDir -DestinationPath $zipName -Force
+        echo "Created release package: $zipName"
+        echo "zipName=$zipName" >> $env:GITHUB_ENV
+        # 验证文件是否存在
+        if (Test-Path $zipName) {
+          echo "Zip file exists: $(Get-ChildItem $zipName | Select-Object Name, Length)"
         } else {
-          Write-Error "Publish directory not found"
-          exit 1
+          echo "Zip file does not exist"
         }
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: XChrome-Win10+
-        path: ${{ env.zipName }}
+        path: "XChrome-Win10+*.zip"
 
     - name: Upload raw publish directory
       uses: actions/upload-artifact@v4
