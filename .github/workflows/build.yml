@@ -22,14 +22,14 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
+    - name: Build with runtime
+      run: dotnet build --configuration Release --runtime win-x64 --no-restore
 
     - name: Run tests (if any)
       run: dotnet test --configuration Release --no-build || echo "No tests found"
 
     - name: Publish for Windows 10+
-      run: dotnet publish --configuration Release --no-build --output publish --runtime win-x64 --self-contained true
+      run: dotnet publish --configuration Release --output publish --runtime win-x64 --self-contained true
 
     - name: Get version from project
       id: get-version
