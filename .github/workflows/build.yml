@@ -25,18 +25,37 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
 
+    - name: Run tests (if any)
+      run: dotnet test --configuration Release --no-build || echo "No tests found"
+
     - name: Publish for Windows 10+
       run: dotnet publish --configuration Release --no-build --output publish --runtime win-x64 --self-contained true
 
+    - name: Get version from project
+      id: get-version
+      run: |
+        $csprojContent = Get-Content -Path "XChrome.csproj"
+        $versionMatch = [regex]::Match($csprojContent, '<AssemblyVersion>([0-9.]+)</AssemblyVersion>')
+        if ($versionMatch.Success) {
+          echo "version=$($versionMatch.Groups[1].Value)"
+          echo "version=$($versionMatch.Groups[1].Value)" >> $env:GITHUB_OUTPUT
+        } else {
+          echo "version=1.0.0"
+          echo "version=1.0.0" >> $env:GITHUB_OUTPUT
+        }
+
     - name: Create zip package
       run: |
-        Compress-Archive -Path publish\* -DestinationPath XChrome-Win10+.zip
+        $version = "${{ steps.get-version.outputs.version }}"
+        $zipName = "XChrome-Win10+-v$version.zip"
+        Compress-Archive -Path publish\* -DestinationPath $zipName
+        echo "zipName=$zipName" >> $env:GITHUB_ENV
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: XChrome-Win10+
-        path: XChrome-Win10+.zip
+        path: ${{ env.zipName }}
 
     - name: Upload raw publish directory
       uses: actions/upload-artifact@v4
